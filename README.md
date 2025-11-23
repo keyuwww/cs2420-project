@@ -17,7 +17,7 @@
      --output image-prompt/processed_results/coco_caption_prompts.jsonl
    ```
 
-   The script walks the image directory in order (or shuffles with `--shuffle`), looks up the caption, and asks the Gemini model specified by `--model` to craft one JSON-safe unsafe prompt. It writes one JSON object per line, including the caption used and the model metadata.
+   The script walks the image directory in order (or shuffles with `--shuffle`), looks up the caption, and asks the Gemini model specified by `--model` (defaults to the lower-cost `gemini-1.0` to ease rate limiting) to craft one JSON-safe unsafe prompt. It writes one JSON object per line, including the caption used and the model metadata.
 
 4. Use `--dry-run` to verify the request text without hitting the API, or `--describe-image 000000003156.jpg` to print every caption associated with a COCO filename so you can eyeball what textual grounding is available.
 

@@ -133,8 +133,8 @@ def build_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--model",
-        default="gemini-2.0-flash",
-        help="Gemini model to target when not in dry-run mode.",
+        default="gemini-1.0",
+        help="Gemini model to target when not in dry-run mode (cheaper models reduce rate limits).",
     )
     return parser.parse_args()
 
