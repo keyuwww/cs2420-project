@@ -1,1 +1,58 @@
+# Project-specific files
 coco_val_sample-RANDOM/annotations_trainval2017.zip
+
+# Environment variables and API keys
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Output files
+*.jsonl
+*.json
+!instances_val2017.json
+# !coco_pipeline1/output/captions.json
+# !coco_pipeline1/output/results.json
+# !coco_pipeline1/output/evaluation.json
+
+# Logs
+*.log
