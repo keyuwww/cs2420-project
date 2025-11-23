@@ -1,0 +1,26 @@
+[project]
+name = "coco-gemini"
+version = "0.1.0"
+description = "Sample 100 random COCO images with captions and optionally prompt Gemini via Google AI Studio."
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+  "google-generativeai>=0.8.2",
+  "pycocotools>=2.0.7",
+  "Pillow>=10.3.0",
+  "matplotlib>=3.8.0",
+  "tqdm>=4.66.0",
+  "pandas>=2.2.0",
+  "python-dotenv>=1.0.1",
+  "ipykernel>=6.29.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff>=0.6.9",
+  "black>=24.10.0"
+]
+
+[tool.ruff]
+line-length = 100

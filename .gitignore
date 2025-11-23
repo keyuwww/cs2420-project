@@ -1,1 +1,11 @@
 coco_val_sample-RANDOM/annotations_trainval2017.zip
+.env
+coco_val_sample-RANDOM/*
+coco_val_sample-SPECIFIC/*
+.gitignore
+
+.venv/
+uv.lock
+
+*.jsonl
+*.log

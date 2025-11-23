@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  viewer:
+    build: .
+    ports:
+      - "8000:5000"
+    volumes:
+      # Mount the results file and image directory
+      - ../output.jsonl:/data/output.jsonl:ro
+      - ../coco_val_sample-SPECIFIC:/data/images:ro
+    environment:
+      - RESULTS_FILE=/data/output.jsonl
+      - IMAGE_DIR=/data/images
+    restart: unless-stopped
