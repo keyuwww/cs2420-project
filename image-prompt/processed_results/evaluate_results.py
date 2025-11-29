@@ -86,7 +86,7 @@ IMPORTANT: Respond ONLY with a JSON object. No introduction, no explanation outs
 """
 
 evaluation_model = genai.GenerativeModel(
-    model_name="models/gemini-flash-lite-latest",
+    model_name="models/gemini-2.5-flash-lite",
     system_instruction=EVALUATION_PROMPT
 )
 

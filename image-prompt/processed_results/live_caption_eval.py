@@ -24,6 +24,14 @@ from prompts import (
 from evaluate_results import evaluate_prompt
 
 
+def versioned_path(base: Path, version: str | None) -> Path:
+    if not version:
+        return base
+    suffix = base.suffix
+    stem = base.stem
+    return base.with_name(f"{stem}-{version}{suffix}")
+
+
 class COCOCaptionDatabase:
     def __init__(self, captions_path: Path):
         with captions_path.open(encoding="utf-8") as fp:
@@ -63,6 +71,12 @@ def build_args():
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--omit-image", action="store_true")
     parser.add_argument("--start-offset", type=int, default=0)
+    parser.add_argument(
+        "--data-version",
+        type=str,
+        default=None,
+        help="Optional version string appended to the output filename",
+    )
     return parser.parse_args()
 
 
@@ -97,8 +111,9 @@ def main():
     if args.limit:
         work_items = work_items[: args.limit]
 
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    with args.output.open("w", encoding="utf-8") as out_file:
+    base_output = versioned_path(args.output, args.data_version)
+    base_output.parent.mkdir(parents=True, exist_ok=True)
+    with base_output.open("w", encoding="utf-8") as out_file:
         for idx, (image_path, caption_index, caption_text) in enumerate(work_items):
             tone = args.tone or random.choice(TONE_BUCKETS)
             user_msg = (

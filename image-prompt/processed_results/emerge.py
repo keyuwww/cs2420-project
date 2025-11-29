@@ -24,7 +24,7 @@ from prompts import (
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 model = genai.GenerativeModel(
-    model_name="gemini-2.0-flash",
+    model_name="gemini-2.5-flash-lite",
     system_instruction=SYSTEM_PROMPT,
 )
 
