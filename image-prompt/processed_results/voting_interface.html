@@ -433,20 +433,52 @@
                         </div>
                     </div>
 
-                    <button class="download-btn" onclick="downloadResults()">Download Results</button>
+                    <button class="download-btn" onclick="downloadResultsJSON()">Download JSON</button>
+                    <button class="download-btn" onclick="downloadResultsCSV()" style="margin-left: 15px; background: #4CAF50;">Download CSV</button>
                 </div>
             `;
 
             document.getElementById('app-content').innerHTML = content;
         }
 
-        function downloadResults() {
+        function downloadResultsJSON() {
             const resultsJson = JSON.stringify(votes, null, 2);
             const blob = new Blob([resultsJson], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = `voting_results_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadResultsCSV() {
+            // Create CSV header
+            const headers = ['image_path', 'caption_level', 'caption_text', 'emergent_unsafe_prompt', 'vote', 'timestamp'];
+
+            // Create CSV rows
+            const rows = votes.map(vote => {
+                return [
+                    vote.image_path,
+                    vote.caption_level,
+                    `"${vote.caption_text.replace(/"/g, '""')}"`, // Escape quotes
+                    `"${vote.emergent_unsafe_prompt.replace(/"/g, '""')}"`, // Escape quotes
+                    vote.vote,
+                    vote.timestamp
+                ].join(',');
+            });
+
+            // Combine header and rows
+            const csv = [headers.join(','), ...rows].join('\n');
+
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `voting_results_${new Date().toISOString().split('T')[0]}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
