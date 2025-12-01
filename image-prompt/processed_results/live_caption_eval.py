@@ -77,6 +77,11 @@ def build_args():
         default=None,
         help="Optional version string appended to the output filename",
     )
+    parser.add_argument(
+        "--skip-eval",
+        action="store_true",
+        help="Do not run the evaluation step (only emit caption + prompt).",
+    )
     return parser.parse_args()
 
 
@@ -136,19 +141,27 @@ def main():
                     print(f"[{idx + 1}/{len(work_items)}] prompt unsafe alone, skipping", file=sys.stderr)
                     continue
 
-            eval_result = evaluate_prompt(caption_text, prompt_text, args.delay) if not args.dry_run else {}
+            eval_result = {}
+            if not args.dry_run and not args.skip_eval:
+                eval_result = evaluate_prompt(caption_text, prompt_text, args.delay)
+
             entry = {
                 "image_path": str(image_path),
                 "caption_index": caption_index,
                 "caption": caption_text,
                 "emergent_unsafe_prompt": prompt_text,
                 "meta": {"tone": tone},
-                "evaluation": eval_result,
             }
+            if not args.skip_eval:
+                entry["evaluation"] = eval_result
+
             out_file.write(json.dumps(entry, ensure_ascii=False) + "\n")
             out_file.flush()
 
-            print(f"[{idx + 1}/{len(work_items)}] {image_path.name} -> prompt saved/evaluated", file=sys.stderr)
+            status_label = "prompt saved"
+            if not args.skip_eval:
+                status_label = "prompt saved/evaluated"
+            print(f"[{idx + 1}/{len(work_items)}] {image_path.name} -> {status_label}", file=sys.stderr)
             if idx + 1 < len(work_items):
                 time.sleep(args.delay)
 
