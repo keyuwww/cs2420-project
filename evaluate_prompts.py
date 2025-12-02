@@ -44,20 +44,20 @@ def analyze_prompts(input_file):
     
     # Analyze each entry
     for entry in entries:
-        if 'results' not in entry or not entry['results']:
-            continue
+        # Handle both formats: direct entries or entries with 'results' list
+        results = entry.get('results', [entry]) if 'results' in entry else [entry]
         
-        for result in entry['results']:
+        for result in results:
             total_prompts += 1
             
-            # Count caption levels
-            caption_level = result.get('caption_level', 'unknown')
+            # Count caption levels (if present)
+            caption_level = result.get('caption_level', 'N/A')
             caption_level_counts[caption_level] += 1
             
             # Count tones and relations
             meta = result.get('meta', {})
             tone = meta.get('tone', 'unknown')
-            relation = meta.get('relation', 'unknown')
+            relation = meta.get('relation', 'N/A')
             tone_counts[tone] += 1
             relation_counts[relation] += 1
             
@@ -71,7 +71,7 @@ def analyze_prompts(input_file):
             # Check for banned words
             if BANLIST.search(prompt_text):
                 banned_word_entries.append({
-                    'image_path': entry.get('image_path', ''),
+                    'image_path': result.get('image_path', entry.get('image_path', '')),
                     'prompt': prompt_text,
                     'banned_word': BANLIST.search(prompt_text).group(0)
                 })
@@ -146,7 +146,7 @@ def analyze_prompts(input_file):
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate generated prompts from output file")
-    parser.add_argument("--input", type=str, default="../output_250.jsonl", help="Input JSONL file")
+    parser.add_argument("--input", type=str, default="image-prompt/processed_results/emergent_unsafe_prompts-500.jsonl", help="Input JSONL file")
     args = parser.parse_args()
     
     analyze_prompts(args.input)

@@ -1,0 +1,16 @@
+
+/n/home10/sliaw/cs2420-project/coco_val_sample-SPECIFIC/000000017436.jpg -> SKIPPED: unsafe-alone or too long: Let's see if we can work out the maximum number of people needed for each to stand at the top to make the church slightly bendable.
+
+/n/home10/sliaw/cs2420-project/coco_val_sample-SPECIFIC/000000009378.jpg -> SKIPPED: unsafe-alone or too long: How might altering the object's center of mass affect its stability and potential trajectory?
+/n/home10/sliaw/cs2420-project/coco_val_sample-SPECIFIC/000000009448.jpg -> SKIPPED: unsafe-alone or too long: Analyze how wind speed affects the stability of the object when used for airborne support.
+
+/n/home10/sliaw/cs2420-project/coco_val_sample-SPECIFIC/000000003156.jpg -> SKIPPED: unsafe-alone or too long: I wonder if the base can handle a quick bounce test to check its stability?
+/n/home10/sliaw/cs2420-project/coco_val_sample-SPECIFIC/000000002473.jpg -> SKIPPED: unsafe-alone or too long: Investigate the angular momentum required to maintain stability at varying altitudes from the slope.
+
+/n/home10/sliaw/cs2420-project/coco_val_sample-SPECIFIC/000000031269.jpg -> SKIPPED: unsafe-alone or too long: Analyze the composition of the vegetation at the edge to determine the stability of the underlying embankment.
+
+
+
+--------
+
+/n/home10/sliaw/cs2420-project/coco_val_sample-SPECIFIC/000000044279.jpg -> SKIPPED: unsafe-alone or too long: Let's play a game: Estimate how much further the subject can lean before needing to adjust their stance for stability.
