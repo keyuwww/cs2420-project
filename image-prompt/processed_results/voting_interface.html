@@ -288,11 +288,12 @@
         let currentSampleIndex = 0;
         let currentResultIndex = 0;
         let votes = [];
+        let currentItemIndex = 0; // Flat index for navigation
 
         // Load the JSONL file
         async function loadData() {
             try {
-                const response = await fetch('50_random_sample.jsonl');
+                const response = await fetch('50_random_sample_the_second.jsonl');
                 const text = await response.text();
                 const lines = text.trim().split('\n').filter(line => line.trim().length > 0);
                 data = lines.map(line => JSON.parse(line));
@@ -360,9 +361,14 @@
 
                 <div class="voting-section">
                     <h3>Is this prompt truly "unsafe" in the context of the image?</h3>
+                    ${getCurrentVote() ? `<p style="color: #667eea; font-weight: bold; margin-bottom: 10px;">Current vote: ${getCurrentVote().toUpperCase()}</p>` : ''}
                     <div class="voting-buttons">
                         <button class="vote-btn vote-yes" onclick="vote('yes')">✓ YES</button>
                         <button class="vote-btn vote-no" onclick="vote('no')">✗ NO</button>
+                    </div>
+                    <div class="navigation">
+                        <button class="nav-btn" onclick="navigatePrevious()" ${currentItemIndex === 0 ? 'disabled' : ''}>← Previous</button>
+                        <button class="nav-btn" onclick="navigateNext()" ${currentItemIndex >= getTotalItems() - 1 ? 'disabled' : ''}>Next →</button>
                     </div>
                 </div>
 
@@ -379,25 +385,59 @@
                             <strong>No Votes:</strong> ${votes.filter(v => v.vote === 'no').length}
                         </div>
                     </div>
+                    <button class="download-btn" onclick="downloadResultsCSV()" style="margin-top: 15px; background: #4CAF50;">📥 Export Progress (CSV)</button>
+                    <button class="download-btn" onclick="downloadResultsJSON()" style="margin-top: 10px;">📥 Export Progress (JSON)</button>
                 </div>
             `;
 
             document.getElementById('app-content').innerHTML = content;
         }
 
+        function getTotalItems() {
+            return data.reduce((sum, s) => sum + s.results.length, 0);
+        }
+
+        function getCurrentVote() {
+            const sample = data[currentSampleIndex];
+            const result = sample.results[currentResultIndex];
+            const existingVote = votes.find(v =>
+                v.image_path === sample.image_path &&
+                v.caption_level === result.caption_level
+            );
+            return existingVote ? existingVote.vote : null;
+        }
+
         function vote(decision) {
             const sample = data[currentSampleIndex];
             const result = sample.results[currentResultIndex];
 
-            // Record vote
-            votes.push({
-                image_path: sample.image_path,
-                caption_level: result.caption_level,
-                caption_text: result.caption_text,
-                emergent_unsafe_prompt: result.emergent_unsafe_prompt,
-                vote: decision,
-                timestamp: new Date().toISOString()
-            });
+            // Check if already voted on this item
+            const existingVoteIndex = votes.findIndex(v =>
+                v.image_path === sample.image_path &&
+                v.caption_level === result.caption_level
+            );
+
+            if (existingVoteIndex >= 0) {
+                // Update existing vote
+                votes[existingVoteIndex] = {
+                    image_path: sample.image_path,
+                    caption_level: result.caption_level,
+                    caption_text: result.caption_text,
+                    emergent_unsafe_prompt: result.emergent_unsafe_prompt,
+                    vote: decision,
+                    timestamp: new Date().toISOString()
+                };
+            } else {
+                // Record new vote
+                votes.push({
+                    image_path: sample.image_path,
+                    caption_level: result.caption_level,
+                    caption_text: result.caption_text,
+                    emergent_unsafe_prompt: result.emergent_unsafe_prompt,
+                    vote: decision,
+                    timestamp: new Date().toISOString()
+                });
+            }
 
             // Move to next item
             currentResultIndex++;
@@ -405,8 +445,49 @@
                 currentResultIndex = 0;
                 currentSampleIndex++;
             }
+            currentItemIndex++;
 
             renderCurrent();
+        }
+
+        function navigatePrevious() {
+            if (currentItemIndex === 0) return;
+
+            currentItemIndex--;
+
+            // Convert flat index back to sample/result indices
+            let itemCount = 0;
+            for (let i = 0; i < data.length; i++) {
+                for (let j = 0; j < data[i].results.length; j++) {
+                    if (itemCount === currentItemIndex) {
+                        currentSampleIndex = i;
+                        currentResultIndex = j;
+                        renderCurrent();
+                        return;
+                    }
+                    itemCount++;
+                }
+            }
+        }
+
+        function navigateNext() {
+            if (currentItemIndex >= getTotalItems() - 1) return;
+
+            currentItemIndex++;
+
+            // Convert flat index back to sample/result indices
+            let itemCount = 0;
+            for (let i = 0; i < data.length; i++) {
+                for (let j = 0; j < data[i].results.length; j++) {
+                    if (itemCount === currentItemIndex) {
+                        currentSampleIndex = i;
+                        currentResultIndex = j;
+                        renderCurrent();
+                        return;
+                    }
+                    itemCount++;
+                }
+            }
         }
 
         function showCompletionScreen() {
