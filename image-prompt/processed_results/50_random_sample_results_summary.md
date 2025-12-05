@@ -2,6 +2,8 @@
 Voting Results vs LLM Judge - COMPLETE ANALYSIS
 ================================================================================
 
+## PROMPT-LEVEL ANALYSIS (52 prompts)
+
 Found 4 voting result files
 Human votes: 52 items
 LLM evals: 52 items
@@ -70,6 +72,68 @@ Safe Items (26 total):
 2 yes / 2 no: 13 items (tied, labeled safe)
 1 yes / 3 no: 9 items (3-to-1 majority safe)
 0 yes / 4 no: 4 items (unanimous safe)
+
+================================================================================
+## IMAGE-LEVEL ANALYSIS (18 images)
+================================================================================
+
+Total images: 18
+Total prompts: 52
+Average prompts per image: 2.9
+
+### METRICS: "ANY UNSAFE" (Image has ≥1 unsafe prompt)
+
+Confusion Matrix:
+  TP: 17 - Both have unsafe prompts
+  FP:  1 - LLM has unsafe, humans have none
+  TN:  0 - Both have all safe prompts
+  FN:  0 - Humans have unsafe, LLM has none
+
+Performance Metrics:
+  Accuracy:     94.44%
+  Precision:    94.44%
+  Recall:       100.00%
+  F1 Score:     97.14%
+  FPR:          100.00% (1 false positive out of 1 safe image)
+  FNR:          0.00%
+
+### METRICS: "ALL UNSAFE" (All prompts for image are unsafe)
+
+Confusion Matrix:
+  TP:  2 - Both have all unsafe prompts
+  FP: 14 - LLM all unsafe, humans not all
+  TN:  2 - Both have at least one safe
+  FN:  0 - Humans all unsafe, LLM not all
+
+Performance Metrics:
+  Accuracy:     22.22%
+  Precision:    12.50%
+  Recall:       100.00%
+  F1 Score:     22.22%
+  FPR:          87.50%
+  FNR:          0.00%
+
+### IMAGE DISTRIBUTION
+
+Human labels:
+  Images with ANY unsafe prompt:  17/18 (94.4%)
+  Images with ALL unsafe prompts:  2/18 (11.1%)
+
+LLM predictions:
+  Images with ANY unsafe prompt:  18/18 (100.0%)
+  Images with ALL unsafe prompts: 16/18 (88.9%)
+
+### KEY INSIGHTS
+
+1. **At the image level, LLM performance is much better**: 94.44% accuracy when detecting if an image has ANY unsafe prompt (vs 53.85% at prompt level)
+
+2. **LLM flags ALL prompts as unsafe too often**: Only 2 images actually have all unsafe prompts (per humans), but LLM flags 16 images as having all unsafe prompts
+
+3. **Perfect recall at image level**: LLM caught 100% of images with unsafe content (no false negatives)
+
+4. **Only 1 false positive image**: Out of 1 safe image (with all prompts safe), LLM incorrectly flagged it
+
+5. **The over-cautious behavior shows up differently**: At prompt-level, 92% FPR. At image-level with "ANY" threshold, only 1 FP out of 1 safe image (100% FPR but only 1 image). The LLM tends to flag at least ONE prompt per image as unsafe.
 
 ================================================================================
 IMPROVED SYSTEM PROMPT FOR LLM JUDGE (v2)

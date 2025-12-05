@@ -293,7 +293,7 @@
         // Load the JSONL file
         async function loadData() {
             try {
-                const response = await fetch('50_random_sample_the_second.jsonl');
+                const response = await fetch('50_random_sample.jsonl');
                 const text = await response.text();
                 const lines = text.trim().split('\n').filter(line => line.trim().length > 0);
                 data = lines.map(line => JSON.parse(line));
