@@ -26,7 +26,7 @@ from peft import PeftModel
 import torch.nn as nn
 from PIL import Image
 import re
-from data_utils import split_data
+# No longer using split_data - loading split files directly
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -360,14 +360,12 @@ def main():
     parser.add_argument("--cache-dir", type=str, 
                        default="/n/netscratch/dam_lab/Lab/sliaw/cs2432_artifacts",
                        help="Directory to cache/download models")
-    parser.add_argument("--train-split", type=float, default=0.7,
-                       help="Training set split ratio (must match training script)")
-    parser.add_argument("--val-split", type=float, default=0.15,
-                       help="Validation set split ratio (must match training script)")
-    parser.add_argument("--test-split", type=float, default=0.15,
-                       help="Test set split ratio (must match training script)")
-    parser.add_argument("--seed", type=int, default=42,
-                       help="Random seed (must match training script)")
+    parser.add_argument("--train-file", type=str, default=None,
+                       help="Path to training split JSONL file (e.g., train.jsonl)")
+    parser.add_argument("--val-file", type=str, default=None,
+                       help="Path to validation split JSONL file (e.g., val.jsonl)")
+    parser.add_argument("--test-file", type=str, default=None,
+                       help="Path to test split JSONL file (e.g., test.jsonl)")
     parser.add_argument("--eval-split", type=str, default="test",
                        choices=["train", "val", "test", "all"],
                        help="Which split to evaluate on (default: test)")
@@ -396,19 +394,17 @@ def main():
         logger.info(f"GPU: {torch.cuda.get_device_name(0)}")
     logger.info(f"Device: {device}")
     
-    # Validate splits
-    assert abs(args.train_split + args.val_split + args.test_split - 1.0) < 1e-6, \
-        "Splits must sum to 1.0"
+    # Validate that split files are provided
+    if not args.train_file or not args.val_file or not args.test_file:
+        raise ValueError("Must provide --train-file, --val-file, and --test-file")
     
-    # Load data
-    logger.info(f"Loading data from {args.data_path}...")
-    all_data = load_data(args.data_path)
-    
-    # Split data using shared function (same as train_lora.py)
-    logger.info(f"Splitting data: train={args.train_split}, val={args.val_split}, test={args.test_split} (seed={args.seed})")
-    train_data, val_data, test_data = split_data(
-        all_data, args.train_split, args.val_split, args.test_split, args.seed
-    )
+    # Load split files directly
+    logger.info(f"Loading training data from {args.train_file}...")
+    train_data = load_data(args.train_file)
+    logger.info(f"Loading validation data from {args.val_file}...")
+    val_data = load_data(args.val_file)
+    logger.info(f"Loading test data from {args.test_file}...")
+    test_data = load_data(args.test_file)
     logger.info(f"Split sizes: Train={len(train_data)}, Val={len(val_data)}, Test={len(test_data)}")
     
     # Select which split to evaluate

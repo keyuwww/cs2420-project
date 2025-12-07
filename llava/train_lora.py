@@ -29,7 +29,7 @@ from transformers import AutoProcessor, AutoModel
 from peft import get_peft_model, LoraConfig, TaskType
 from PIL import Image
 from sklearn.metrics import roc_auc_score
-from data_utils import split_data
+# No longer using split_data - loading split files directly
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -56,11 +56,10 @@ class Config:
     image_dir: str = "images"
     max_seq_length: int = 128
 
-    # Train/Test Split
-    train_split: float = 0.7
-    val_split: float = 0.15
-    test_split: float = 0.15
-    seed: int = 42
+    # Train/Test Split Files
+    train_file: str = None
+    val_file: str = None
+    test_file: str = None
 
     # Device
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
@@ -459,14 +458,12 @@ def main():
                        help="Number of training epochs")
     parser.add_argument("--learning-rate", type=float, default=2e-4,
                        help="Learning rate")
-    parser.add_argument("--train-split", type=float, default=0.7,
-                       help="Training set split ratio")
-    parser.add_argument("--val-split", type=float, default=0.15,
-                       help="Validation set split ratio")
-    parser.add_argument("--test-split", type=float, default=0.15,
-                       help="Test set split ratio")
-    parser.add_argument("--seed", type=int, default=42,
-                       help="Random seed")
+    parser.add_argument("--train-file", type=str, default=None,
+                       help="Path to training split JSONL file (e.g., train.jsonl)")
+    parser.add_argument("--val-file", type=str, default=None,
+                       help="Path to validation split JSONL file (e.g., val.jsonl)")
+    parser.add_argument("--test-file", type=str, default=None,
+                       help="Path to test split JSONL file (e.g., test.jsonl)")
     parser.add_argument("--hf-token", type=str, default=None,
                        help="Hugging Face token (optional, for private models)")
     parser.add_argument("--device", type=str, default=None,
@@ -486,10 +483,9 @@ def main():
         batch_size=args.batch_size,
         num_epochs=args.num_epochs,
         learning_rate=args.learning_rate,
-        train_split=args.train_split,
-        val_split=args.val_split,
-        test_split=args.test_split,
-        seed=args.seed,
+        train_file=args.train_file,
+        val_file=args.val_file,
+        test_file=args.test_file,
         hf_token=args.hf_token,
         device=args.device or ("cuda" if torch.cuda.is_available() else "cpu"),
     )
@@ -497,9 +493,9 @@ def main():
     # Store cache_dir separately (not in Config)
     cache_dir = Path(args.cache_dir)
 
-    # Validate splits
-    assert abs(config.train_split + config.val_split + config.test_split - 1.0) < 1e-6, \
-        "Splits must sum to 1.0"
+    # Validate that split files are provided
+    if not config.train_file or not config.val_file or not config.test_file:
+        raise ValueError("Must provide --train-file, --val-file, and --test-file")
 
     # Create output directory (relative to current working directory)
     output_dir = Path(config.output_dir).resolve()
@@ -525,15 +521,14 @@ def main():
         logger.info(f"GPU: {torch.cuda.get_device_name(0)}")
     logger.info(f"Device: {config.device}")
 
-    # Load data
-    logger.info(f"Loading data from {config.data_path}...")
-    all_data = load_data(config.data_path)
-
-    # Split data using shared function (same as evaluate_baseline.py)
-    train_data, val_data, test_data = split_data(
-        all_data, config.train_split, config.val_split, config.test_split, config.seed
-    )
-    logger.info(f"Split: Train={len(train_data)}, Val={len(val_data)}, Test={len(test_data)}")
+    # Load split files directly
+    logger.info(f"Loading training data from {config.train_file}...")
+    train_data = load_data(config.train_file)
+    logger.info(f"Loading validation data from {config.val_file}...")
+    val_data = load_data(config.val_file)
+    logger.info(f"Loading test data from {config.test_file}...")
+    test_data = load_data(config.test_file)
+    logger.info(f"Split sizes: Train={len(train_data)}, Val={len(val_data)}, Test={len(test_data)}")
 
     # Check if model is already cached
     model_cache_path = cache_dir / f"models--{config.model_name.replace('/', '--')}"
