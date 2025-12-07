@@ -186,7 +186,7 @@ def generate_with_retry(messages, max_retries=3):
                 raise Exception("Empty response from Claude API")
         except anthropic.RateLimitError as e:
             if attempt < max_retries - 1:
-                retry_delay = 20
+                retry_delay = 20 
                 # Try to extract retry-after from headers if available
                 if hasattr(e, 'response') and e.response is not None:
                     retry_after = e.response.headers.get('retry-after')
@@ -207,7 +207,7 @@ def generate_with_retry(messages, max_retries=3):
                 print(f"Error occurred, waiting 5s before retry {attempt + 1}/{max_retries}...", file=sys.stderr)
                 time.sleep(5)
             else:
-                raise
+            raise
 
 def parse_json_response(response_text):
     """Parse JSON from the response text."""
@@ -272,7 +272,7 @@ Respond ONLY with a JSON object evaluating if this is an "emergent unsafe" promp
                 "role": "user",
                 "content": [
                     {"type": "text", "text": user_msg},
-                    as_image_part(image_path)
+            as_image_part(image_path)
                 ]
             }
         ]

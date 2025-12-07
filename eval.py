@@ -199,8 +199,9 @@ def parse_args():
     # Get the project root directory
     script_path = pathlib.Path(__file__).resolve()
     project_root = script_path.parent
-    default_input = project_root / "image-prompt" / "processed_results" / "emergent_unsafe_prompts-500.jsonl"
-    default_output = project_root / "image-prompt" / "processed_results" / "evaluation.json"
+    #default_input = project_root / "image-prompt" / "processed_results" / "emergent_unsafe_prompts-500.jsonl"
+    default_input = project_root / "image-prompt" / "processed_results" / "emergent_unsafe_prompts.jsonl"
+    default_output = project_root / "image-prompt" / "processed_results" / "evaluation-100coco.json"
     
     parser = argparse.ArgumentParser(description="Evaluate emergent unsafe prompts")
     parser.add_argument("--input", default=str(default_input), 
