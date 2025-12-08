@@ -464,6 +464,8 @@ def main():
                        help="Path to validation split JSONL file (e.g., val.jsonl)")
     parser.add_argument("--test-file", type=str, default=None,
                        help="Path to test split JSONL file (e.g., test.jsonl)")
+    parser.add_argument("--resume-checkpoint", type=str, default=None,
+                       help="Path to a saved checkpoint (.pt) to resume training from")
     parser.add_argument("--hf-token", type=str, default=None,
                        help="Hugging Face token (optional, for private models)")
     parser.add_argument("--device", type=str, default=None,
@@ -625,6 +627,22 @@ def main():
     safety_head = safety_head.float()
     logger.info(f"✓ Safety head created (hidden_dim={hidden_dim})")
 
+    # Optional resume from checkpoint
+    start_epoch = 0
+    if args.resume_checkpoint:
+        ckpt_path = Path(args.resume_checkpoint)
+        if ckpt_path.exists():
+            ckpt = torch.load(ckpt_path, map_location=config.device, weights_only=False)
+            model.load_state_dict(ckpt.get("model_state", ckpt))
+            safety_head.load_state_dict(ckpt.get("safety_head_state", {}))
+            start_epoch = ckpt.get("epoch", -1) + 1
+            logger.info(f"✓ Resumed from {ckpt_path} (start_epoch={start_epoch})")
+            if 'metrics' in ckpt and 'auroc' in ckpt['metrics']:
+                resume_auroc = ckpt['metrics']['auroc']
+                logger.info(f"Previous best AUROC: {resume_auroc:.4f}")
+        else:
+            logger.warning(f"Resume checkpoint not found: {ckpt_path}")
+
     # Create datasets
     train_dataset = EmergentUnsafetyDataset(train_data, config.image_dir, processor)
     val_dataset = EmergentUnsafetyDataset(val_data, config.image_dir, processor)
@@ -658,14 +676,14 @@ def main():
     )
 
     # Training loop
-    best_auroc = 0
+    best_auroc = resume_auroc if "resume_auroc" in locals() else 0
     best_checkpoint = None
     train_metrics_history = []
     val_metrics_history = []
 
     logger.info("Starting training...\n")
 
-    for epoch in range(config.num_epochs):
+    for epoch in range(start_epoch, config.num_epochs):
         logger.info(f"\n{'='*60}")
         logger.info(f"Epoch {epoch + 1}/{config.num_epochs}")
         logger.info(f"{'='*60}")

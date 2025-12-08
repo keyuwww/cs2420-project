@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-Verify that train/test/val splits are:
-1. Balanced across labels (same proportion of safe/unsafe in each split)
-2. Identical between evaluate_baseline.py and train_lora.py (same seed)
-"""
 
 import json
 import numpy as np
@@ -12,7 +7,6 @@ from data_utils import split_data
 from collections import Counter
 
 def load_data(data_path: str):
-    """Load data from JSONL file"""
     with open(data_path, 'r') as f:
         data = []
         for line in f:
@@ -21,7 +15,6 @@ def load_data(data_path: str):
     return data
 
 def check_label_distribution(data, split_name="all"):
-    """Check label distribution in a dataset"""
     labels = [int(sample.get("label", 0)) for sample in data]
     label_counts = Counter(labels)
     total = len(labels)
@@ -34,14 +27,12 @@ def check_label_distribution(data, split_name="all"):
     return label_counts, total
 
 def verify_splits_identical(data_path, train_split=0.7, val_split=0.15, test_split=0.15, seed=42, num_tests=3):
-    """Verify that multiple calls with same seed produce identical splits"""
     print("="*70)
     print("VERIFYING SPLIT CONSISTENCY (Same Seed = Same Splits)")
     print("="*70)
     
     data = load_data(data_path)
     
-    # Generate splits multiple times with same seed
     all_splits = []
     for i in range(num_tests):
         train, val, test = split_data(data, train_split, val_split, test_split, seed)
@@ -51,7 +42,6 @@ def verify_splits_identical(data_path, train_split=0.7, val_split=0.15, test_spl
             'test': [sample.get('image_path', '') + sample.get('prompt', '') for sample in test]
         })
     
-    # Check if all splits are identical
     train_identical = all(all_splits[0]['train'] == s['train'] for s in all_splits[1:])
     val_identical = all(all_splits[0]['val'] == s['val'] for s in all_splits[1:])
     test_identical = all(all_splits[0]['test'] == s['test'] for s in all_splits[1:])
@@ -65,25 +55,20 @@ def verify_splits_identical(data_path, train_split=0.7, val_split=0.15, test_spl
     return True
 
 def check_label_balance(data_path, train_split=0.7, val_split=0.15, test_split=0.15, seed=42):
-    """Check if label distribution is balanced across splits"""
     print("="*70)
     print("CHECKING LABEL BALANCE ACROSS SPLITS")
     print("="*70)
     
     data = load_data(data_path)
     
-    # Get overall distribution
     check_label_distribution(data, "Overall")
     
-    # Split data
     train_data, val_data, test_data = split_data(data, train_split, val_split, test_split, seed)
     
-    # Check distribution in each split
     train_counts, train_total = check_label_distribution(train_data, "Train")
     val_counts, val_total = check_label_distribution(val_data, "Val")
     test_counts, test_total = check_label_distribution(test_data, "Test")
     
-    # Calculate proportions
     train_safe_pct = train_counts[0] / train_total * 100 if train_total > 0 else 0
     train_unsafe_pct = train_counts[1] / train_total * 100 if train_total > 0 else 0
     
@@ -93,7 +78,6 @@ def check_label_balance(data_path, train_split=0.7, val_split=0.15, test_split=0
     test_safe_pct = test_counts[0] / test_total * 100 if test_total > 0 else 0
     test_unsafe_pct = test_counts[1] / test_total * 100 if test_total > 0 else 0
     
-    # Overall proportions
     overall_counts, overall_total = Counter([int(s.get("label", 0)) for s in data]), len(data)
     overall_safe_pct = overall_counts[0] / overall_total * 100 if overall_total > 0 else 0
     overall_unsafe_pct = overall_counts[1] / overall_total * 100 if overall_total > 0 else 0
@@ -108,7 +92,6 @@ def check_label_balance(data_path, train_split=0.7, val_split=0.15, test_split=0
     print(f"{'Val':<10} {val_safe_pct:>6.2f}%      {val_unsafe_pct:>6.2f}%      {abs(val_safe_pct - overall_safe_pct):.2f}% diff")
     print(f"{'Test':<10} {test_safe_pct:>6.2f}%      {test_unsafe_pct:>6.2f}%      {abs(test_safe_pct - overall_safe_pct):.2f}% diff")
     
-    # Check if balanced (within 5% of overall distribution)
     threshold = 5.0
     train_balanced = abs(train_safe_pct - overall_safe_pct) < threshold
     val_balanced = abs(val_safe_pct - overall_safe_pct) < threshold
@@ -146,7 +129,6 @@ def main():
     
     args = parser.parse_args()
     
-    # Verify splits are identical with same seed
     print("\n" + "="*70)
     print("TEST 1: Split Consistency (Same Seed = Same Splits)")
     print("="*70)
@@ -154,7 +136,6 @@ def main():
         args.data_path, args.train_split, args.val_split, args.test_split, args.seed
     )
     
-    # Check label balance
     print("\n" + "="*70)
     print("TEST 2: Label Balance Across Splits")
     print("="*70)

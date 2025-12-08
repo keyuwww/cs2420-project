@@ -9,6 +9,9 @@ uv.lock
 
 *.jsonl
 *.log
+# Ignore SLURM batch scripts in llava
+llava/*.sbatch
+llava/**/*.sbatch
 # Large files
 annotations/instances_train2017.json
 annotations_trainval2017.zip

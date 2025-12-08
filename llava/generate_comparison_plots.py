@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-Generate comprehensive comparison plots for Baseline vs LoRA results
-"""
 
 import json
 import numpy as np
@@ -11,18 +8,15 @@ from pathlib import Path
 from sklearn.metrics import confusion_matrix
 import argparse
 
-# Set style
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (12, 8)
 plt.rcParams['font.size'] = 12
 
 def load_metrics(filepath):
-    """Load metrics from JSON file"""
     with open(filepath, 'r') as f:
         return json.load(f)
 
 def load_results(filepath):
-    """Load detailed results from JSONL file"""
     results = []
     with open(filepath, 'r') as f:
         for line in f:
@@ -30,7 +24,6 @@ def load_results(filepath):
     return results
 
 def plot_metrics_comparison(baseline_metrics, lora_metrics, output_dir):
-    """Plot side-by-side metrics comparison"""
     metrics = ['accuracy', 'auroc', 'precision', 'recall', 'f1']
     baseline_vals = [baseline_metrics.get(m, 0) for m in metrics]
     lora_vals = [lora_metrics.get(m, 0) for m in metrics]
@@ -50,7 +43,6 @@ def plot_metrics_comparison(baseline_metrics, lora_metrics, output_dir):
     ax.set_ylim([0, 1.1])
     ax.grid(axis='y', alpha=0.3)
     
-    # Add value labels on bars
     for bars in [bars1, bars2]:
         for bar in bars:
             height = bar.get_height()
@@ -64,10 +56,8 @@ def plot_metrics_comparison(baseline_metrics, lora_metrics, output_dir):
     print(f"✓ Saved metrics_comparison.png")
 
 def plot_confusion_matrices(baseline_metrics, lora_metrics, output_dir):
-    """Plot confusion matrices side by side"""
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
     
-    # Baseline confusion matrix
     cm_baseline = np.array(baseline_metrics['confusion_matrix'])
     sns.heatmap(cm_baseline, annot=True, fmt='d', cmap='Blues', ax=ax1,
                 xticklabels=['YES (Safe)', 'NO (Unsafe)'],
@@ -77,7 +67,6 @@ def plot_confusion_matrices(baseline_metrics, lora_metrics, output_dir):
     ax1.set_ylabel('True Label', fontsize=12)
     ax1.set_xlabel('Predicted Label', fontsize=12)
     
-    # LoRA confusion matrix
     cm_lora = np.array(lora_metrics['confusion_matrix'])
     sns.heatmap(cm_lora, annot=True, fmt='d', cmap='Reds', ax=ax2,
                 xticklabels=['YES (Safe)', 'NO (Unsafe)'],
@@ -93,7 +82,6 @@ def plot_confusion_matrices(baseline_metrics, lora_metrics, output_dir):
     print(f"✓ Saved confusion_matrices.png")
 
 def plot_improvement_metrics(baseline_metrics, lora_metrics, output_dir):
-    """Plot improvement percentages"""
     metrics = ['accuracy', 'auroc', 'precision', 'recall', 'f1']
     improvements = []
     for m in metrics:
@@ -112,7 +100,6 @@ def plot_improvement_metrics(baseline_metrics, lora_metrics, output_dir):
     ax.axvline(x=0, color='black', linestyle='-', linewidth=0.8)
     ax.grid(axis='x', alpha=0.3)
     
-    # Add value labels
     for i, (bar, val) in enumerate(zip(bars, improvements)):
         ax.text(val, i, f'{val:+.1f}%',
                ha='left' if val > 0 else 'right', va='center', fontsize=11, fontweight='bold')
@@ -123,7 +110,6 @@ def plot_improvement_metrics(baseline_metrics, lora_metrics, output_dir):
     print(f"✓ Saved improvement_metrics.png")
 
 def plot_p_emergent_distribution(lora_results, output_dir):
-    """Plot distribution of P_emergent scores"""
     safe_p_emergent = [r['p_emergent'] for r in lora_results if r['label'] == 0]
     unsafe_p_emergent = [r['p_emergent'] for r in lora_results if r['label'] == 1]
     
@@ -132,7 +118,6 @@ def plot_p_emergent_distribution(lora_results, output_dir):
     ax.hist(safe_p_emergent, bins=30, alpha=0.6, label='Safe (Label=0)', color='green', edgecolor='black')
     ax.hist(unsafe_p_emergent, bins=30, alpha=0.6, label='Unsafe (Label=1)', color='red', edgecolor='black')
     
-    # Add threshold line
     threshold = lora_results[0].get('threshold', 0.5)
     ax.axvline(x=threshold, color='blue', linestyle='--', linewidth=2, label=f'Threshold={threshold:.3f}')
     
@@ -148,7 +133,6 @@ def plot_p_emergent_distribution(lora_results, output_dir):
     print(f"✓ Saved p_emergent_distribution.png")
 
 def plot_prediction_agreement(baseline_results, lora_results, output_dir):
-    """Plot where baseline and LoRA agree/disagree"""
     if len(baseline_results) != len(lora_results):
         print("Warning: Different number of samples, skipping agreement plot")
         return
@@ -180,7 +164,6 @@ def plot_prediction_agreement(baseline_results, lora_results, output_dir):
     ax.set_xticklabels([l.replace('_', ' ').title() for l in labels], rotation=45, ha='right')
     ax.grid(axis='y', alpha=0.3)
     
-    # Add value labels
     for bar in bars:
         height = bar.get_height()
         ax.text(bar.get_x() + bar.get_width()/2., height,
@@ -193,7 +176,6 @@ def plot_prediction_agreement(baseline_results, lora_results, output_dir):
     print(f"✓ Saved prediction_agreement.png")
 
 def plot_class_accuracy_comparison(baseline_metrics, lora_metrics, output_dir):
-    """Plot accuracy by class (safe vs unsafe)"""
     classes = ['Safe', 'Unsafe']
     baseline_acc = [baseline_metrics.get('safe_accuracy', 0), baseline_metrics.get('unsafe_accuracy', 0)]
     lora_acc = [lora_metrics.get('safe_accuracy', 0), lora_metrics.get('unsafe_accuracy', 0)]
@@ -213,7 +195,6 @@ def plot_class_accuracy_comparison(baseline_metrics, lora_metrics, output_dir):
     ax.set_ylim([0, 1.1])
     ax.grid(axis='y', alpha=0.3)
     
-    # Add value labels
     for bars in [bars1, bars2]:
         for bar in bars:
             height = bar.get_height()
@@ -245,20 +226,17 @@ def main():
     
     args = parser.parse_args()
     
-    # Create output directory
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     print(f"Output directory: {output_dir}")
     print()
     
-    # Load metrics
     print("Loading metrics...")
     baseline_metrics = load_metrics(args.baseline_metrics)
     lora_metrics = load_metrics(args.lora_metrics)
     print("✓ Metrics loaded")
     print()
     
-    # Load detailed results
     print("Loading detailed results...")
     baseline_results = load_results(args.baseline_results)
     lora_results = load_results(args.lora_results)
@@ -266,7 +244,6 @@ def main():
     print(f"✓ Loaded {len(lora_results)} LoRA results")
     print()
     
-    # Generate plots
     print("Generating plots...")
     print()
     
