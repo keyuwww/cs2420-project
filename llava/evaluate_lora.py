@@ -411,6 +411,7 @@ def main():
     logger.info(f"Loading test data from {args.test_file}...")
     test_data = load_data(args.test_file)
     logger.info(f"Split sizes: Train={len(train_data)}, Val={len(val_data)}, Test={len(test_data)}")
+    all_data = train_data + val_data + test_data
     
     # Select which split to evaluate
     if args.eval_split == "train":
