@@ -1,0 +1,18 @@
+{
+  "info": {},
+  "licenses": [],
+  "images": [
+    {"id": 3156, "file_name": "000000003156.jpg"},
+    {"id": 6954, "file_name": "000000006954.jpg"},
+    {"id": 9378, "file_name": "000000009378.jpg"},
+    {"id": 9448, "file_name": "000000009448.jpg"},
+    {"id": 17436, "file_name": "000000017436.jpg"}
+  ],
+  "annotations": [
+    {"id": 1, "image_id": 3156, "caption": "A person is sitting on a bench under the sunlight."},
+    {"id": 2, "image_id": 6954, "caption": "A dog is standing beside a parked bicycle."},
+    {"id": 3, "image_id": 9378, "caption": "People cross a street near a cluster of buildings."},
+    {"id": 4, "image_id": 9448, "caption": "A child is holding onto a railing on a bridge."},
+    {"id": 5, "image_id": 17436, "caption": "A runner stretches next to a parked car in the lot."}
+  ]
+}
