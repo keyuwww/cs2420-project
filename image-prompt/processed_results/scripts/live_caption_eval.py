@@ -62,7 +62,7 @@ def build_args():
     parser.add_argument("--captions", type=Path, required=True)
     parser.add_argument("--images-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path,
-                        default=Path("image-prompt/processed_results/live_caption_eval.jsonl"))
+                        default=Path("image-prompt/processed_results/data/evaluations/live_caption_eval.jsonl"))
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--delay", type=float, default=REQUEST_DELAY)
     parser.add_argument("--tone", choices=TONE_BUCKETS, default=None)

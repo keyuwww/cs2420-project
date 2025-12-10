@@ -59,7 +59,7 @@ def main():
     parser = argparse.ArgumentParser(description="Summarize emergent prompt outputs.")
     parser.add_argument(
         "--pattern",
-        default="image-prompt/processed_results/coco_caption_prompts*.jsonl",
+        default="image-prompt/processed_results/data/prompts/coco_caption_prompts*.jsonl",
         help="Glob matching the JSONL files to analyze.",
     )
     parser.add_argument(

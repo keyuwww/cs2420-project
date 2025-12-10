@@ -78,7 +78,7 @@ def build_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("image-prompt/processed_results/coco_caption_prompts.jsonl"),
+        default=Path("image-prompt/processed_results/data/prompts/coco_caption_prompts.jsonl"),
         help="Where to write one JSON entry per prompt.",
     )
     parser.add_argument(

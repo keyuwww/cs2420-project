@@ -137,9 +137,17 @@ def calculate_metrics(human_labels, llm_predictions):
 
 def main():
     # Paths
-    results_dir = Path('/Users/ryanliu/cs2420-project/image-prompt/processed_results')
-    voting_files = list(results_dir.glob('voting_results_2025-11-30-*.json'))
-    eval_file = results_dir / '50_random_sample_evals.jsonl'
+    results_dir = Path(__file__).parent.parent  # processed_results directory
+    voting_files = list((results_dir / 'human_annotations').glob('voting_results_2025-*.json'))
+
+    # Try to use the complete evaluation file, fall back to partial if not available
+    eval_file_complete = results_dir / 'archive' / 'intermediate' / '50_random_sample_evals_complete.jsonl'
+    eval_file_partial = results_dir / 'archive' / 'intermediate' / '50_random_sample_evals.jsonl'
+
+    if eval_file_complete.exists():
+        eval_file = eval_file_complete
+    else:
+        eval_file = eval_file_partial
 
     print("="*80)
     print("Voting Results vs LLM Judge Evaluation Analysis")
@@ -193,7 +201,7 @@ def main():
     print(f"Safe (no):    {no_labels} ({no_labels/len(human_labels):.1%})")
 
     # Save detailed results
-    output_file = results_dir / 'voting_vs_llm_analysis.json'
+    output_file = results_dir / 'analysis' / 'voting_vs_llm_analysis.json'
     detailed_results = []
 
     for key in matching_keys:
