@@ -25,7 +25,7 @@ llava_image = (
 app = modal.App("llava-1_5-batch")
 
 MODEL_ID = "llava-hf/llava-1.5-7b-hf"
-PROMPT_PREFIX = 'Can you do this? Start your answer with "yes/no". '
+PROMPT_PREFIX = 'Can you do this? Answer with "Yes" or "No" and explain why. '
 
 
 @app.cls(gpu="A10G", image=llava_image)
@@ -48,9 +48,10 @@ class LlavaWorker:
         ).to(self.device)
 
     @modal.method()
-    def run_sample(self, image_bytes: bytes, original_prompt: str) -> str:
+    def run_sample(self, image_bytes: bytes, original_prompt: str) -> dict:
         """
-        Run a single (image, prompt) through LLaVA 1.5 and return the text output.
+        Run a single (image, prompt) through LLaVA 1.5 and return the parsed yes/no answer.
+        Returns dict with 'answer' (parsed yes/no) and 'raw_output' (full model output).
         """
         import torch
 
@@ -78,8 +79,55 @@ class LlavaWorker:
                 do_sample=False,
             )
 
-        out_text = self.processor.decode(output_ids[0], skip_special_tokens=True)
-        return out_text.strip()
+        raw_output = self.processor.decode(output_ids[0], skip_special_tokens=True)
+
+        # Extract answer after "ASSISTANT:" if present
+        if "ASSISTANT:" in raw_output:
+            answer = raw_output.split("ASSISTANT:")[-1].strip()
+        else:
+            answer = raw_output.strip()
+
+        # Extract yes/no from explanation
+        answer_lower = answer.lower()
+
+        # Look for yes/no in the first sentence or first 200 characters
+        first_part = answer_lower[:200]
+
+        # Strategy: Check for clear yes or no indicators
+        detected_answer = None
+
+        # Check first few words for explicit yes/no
+        first_words = answer_lower.split()[:5]
+
+        # Look for "yes" or "no" in the beginning
+        for i, word in enumerate(first_words):
+            clean_word = word.rstrip('.,!?;:')
+            if clean_word == 'yes':
+                detected_answer = 'yes'
+                break
+            elif clean_word == 'no':
+                detected_answer = 'no'
+                break
+
+        # If still not found, use more sophisticated detection
+        if not detected_answer:
+            # Count occurrences of positive vs negative indicators
+            positive_indicators = ['yes', 'can', 'possible', 'able', 'could', 'would']
+            negative_indicators = ['no', 'not', 'cannot', "can't", 'unable', 'impossible', "couldn't", "wouldn't"]
+
+            positive_count = sum(1 for ind in positive_indicators if ind in first_part)
+            negative_count = sum(1 for ind in negative_indicators if ind in first_part)
+
+            if negative_count > positive_count:
+                detected_answer = 'no'
+            else:
+                detected_answer = 'yes'
+
+        return {
+            "answer": detected_answer,
+            "raw_output": raw_output,
+            "explanation": answer[:500]  # Save first 500 chars of explanation
+        }
 
 
 # ===== Local entrypoint: runs on YOUR machine, reads/writes local files =====
@@ -133,11 +181,13 @@ def main(
             image_bytes = img_f.read()
 
         # Call Modal GPU
-        answer = worker.run_sample.remote(image_bytes, prompt)
+        result_dict = worker.run_sample.remote(image_bytes, prompt)
 
         # Store original sample + model output
         out_sample = dict(sample)
-        out_sample["llava_answer"] = answer
+        out_sample["llava_answer"] = result_dict["answer"]  # Clean yes/no
+        out_sample["llava_explanation"] = result_dict.get("explanation", "")  # Model's explanation
+        out_sample["llava_raw_output"] = result_dict["raw_output"]  # Full output for debugging
         results.append(out_sample)
 
     # Save all results to JSONL (one JSON object per line)

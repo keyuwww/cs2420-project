@@ -14,3 +14,5 @@ annotations/instances_train2017.json
 annotations_trainval2017.zip
 annotations/person_keypoints_train2017.json
 annotations/captions_train2017.json
+
+VQA_subset_500/
