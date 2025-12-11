@@ -195,18 +195,6 @@ This project is for academic research purposes on defensive AI security. The gen
 
 All work follows responsible disclosure practices.
 
-## 📊 Citation
-
-If you use this work, please cite:
-```bibtex
-@misc{cs2420-emergent-unsafe,
-  title={Emergent Unsafe Prompts: Eliciting Hidden Dangers in Vision-Language Models},
-  author={Harris, Gardenia and Liu, Ryan and Chen, Keyu and Johnson, Sarah},
-  year={2024},
-  institution={University}
-}
-```
-
 ## 🔗 References
 
 - [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685)
