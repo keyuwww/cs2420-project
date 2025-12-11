@@ -36,10 +36,10 @@ Python scripts for data processing, evaluation, and analysis.
 cd /Users/ryanliu/cs2420-project
 
 # Analyze voting vs LLM judge
-python3 image-prompt/processed_results/scripts/analyze_voting_vs_llm.py
+python3 pipeline2_caption_to_prompt/processed_results/scripts/analyze_voting_vs_llm.py
 
 # Evaluate results with custom file
-python3 image-prompt/processed_results/scripts/evaluate_results.py \
+python3 pipeline2_caption_to_prompt/processed_results/scripts/evaluate_results.py \
   --results-file data/prompts/custom_prompts.jsonl
 ```
 
@@ -215,7 +215,7 @@ All scripts now use relative paths from the `processed_results` directory root:
 
 If running from project root, use full paths:
 ```bash
-python3 image-prompt/processed_results/scripts/analyze_voting_vs_llm.py
+python3 pipeline2_caption_to_prompt/processed_results/scripts/analyze_voting_vs_llm.py
 ```
 
 ### Deprecated Files
