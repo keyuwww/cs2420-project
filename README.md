@@ -30,7 +30,7 @@ Initial approach using a two-stage method for generating emergent unsafe prompts
 ### Pipeline 2: Caption-to-Prompt Generation
 **Location:** `pipeline2/` (scripts) + `pipeline2_caption_to_prompt/` (full implementation with data)
 
-Systematic prompt generation using multi-level image captions with frontier models (Claude Sonnet 4, Gemini 2.0 Flash).
+Systematic prompt generation using multi-level image captions with frontier models (Claude Haiku 3.5, Gemini 2.5 Flash Lite).
 
 **Key Scripts:**
 - `coco_caption_pipeline.py` - Multi-level caption generation
@@ -70,10 +70,6 @@ LoRA fine-tuning infrastructure for LLaMA models to generate context-aware emerg
 - `data/` - Training datasets
 - See [LoRA README](lora/README.md) for details
 
-**Cost-Effectiveness:**
-- Training cost: ~$5 (one-time)
-- Inference: $0.01 per 1000 prompts
-- 20,000× cheaper than Claude Sonnet 4 at scale
 
 ### LLaVA: Vision-Language Model Training
 **Location:** `llava/`
@@ -117,15 +113,6 @@ Production-ready evaluation scripts using Claude and Gemini.
 - **Recall:** 84.6% (catches most unsafe prompts)
 - **False Positive Rate:** 51.6%
 - **False Negative Rate:** 15.4%
-
-### Pipeline Comparison
-| Method | Unsafe Rate | Cost/1k Prompts | Quality Score |
-|--------|-------------|-----------------|---------------|
-| LoRA LLaMA-3.1-8B | 36.2% | $0.01 | 3.8/5 |
-| Claude Sonnet 4 | 41.5% | $1.20 | 4.2/5 |
-| Gemini 2.0 Flash | 38.9% | $0.25 | 4.0/5 |
-
-**Key Finding:** LoRA achieves 87% of Claude's performance at 0.8% of the cost.
 
 ## 🚀 Getting Started
 
@@ -189,10 +176,10 @@ python3 scripts/analyze_voting_vs_llm.py
 ## 🤝 Team
 
 **Team 15:**
-- Gardenia Harris
+- Gardenia Liu
 - Ryan Liu
-- Keyu Chen
-- Sarah Johnson
+- Keyu Wang
+- Sarah Liaw
 
 ## 📄 Related Files
 
@@ -228,6 +215,6 @@ If you use this work, please cite:
 
 ---
 
-**Last Updated:** December 10, 2024
+**Last Updated:** December 10, 2025
 **Course:** CS2420 - Fall 2025
-**Institution:** [University Name]
+**Institution:** Harvard University
