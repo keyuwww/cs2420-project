@@ -1,1 +1,5 @@
 coco_val_sample-RANDOM/annotations_trainval2017.zip
+
+# macOS system files
+.DS_Store
+**/.DS_Store
