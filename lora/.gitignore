@@ -1,0 +1,18 @@
+# Environment variables
+.env
+
+# Checkpoints and model outputs
+lora_checkpoints/
+*.pt
+*.pth
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data backup
+data/benchmark_original_backup.json

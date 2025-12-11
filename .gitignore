@@ -3,3 +3,9 @@ coco_val_sample-RANDOM/annotations_trainval2017.zip
 # macOS system files
 .DS_Store
 **/.DS_Store
+uv.lock
+.env
+
+.venv
+
+VQA_subset_500
